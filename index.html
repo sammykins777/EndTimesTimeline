@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prophetic Timeline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1e3a5f;
+            --secondary-color: #a99776;
+            --bg-color: #f7f5f0;
+            --text-color: #333;
+            --light-color: #e8e2d5;
+            --epoch-color: #f0ebdf;
+            --epoch-border: #d5c7a9;
+            --timeline-width: 4px;
+            --timeline-color: var(--secondary-color);
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            letter-spacing: 0.5px;
+        }
+
+        .timeline-container {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--timeline-width);
+            background-color: var(--timeline-color);
+            height: 100%;
+            top: 0;
+            z-index: 1;
+        }
+        
+        .epoch-section {
+            position: relative;
+            margin: 4rem 0;
+            text-align: center;
+        }
+        
+        .epoch-banner {
+            background-color: var(--epoch-color);
+            border: 1px solid var(--epoch-border);
+            border-radius: 40px;
+            display: inline-block;
+            padding: 0.8rem 2.5rem;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            min-width: 300px;
+        }
+        
+        .epoch-title {
+            color: var(--primary-color);
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        
+        .epoch-section::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            border: 4px solid white;
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+
+        .timeline-event {
+            position: relative;
+            margin-bottom: 4rem;
+            width: 100%;
+            display: flex;
+        }
+        
+        .timeline-event:nth-child(odd) {
+            justify-content: flex-start;
+        }
+        
+        .timeline-event:nth-child(even) {
+            justify-content: flex-end;
+        }
+        
+        .event-content {
+            width: 45%;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            position: relative;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .timeline-event:nth-child(odd) .event-content::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            transform: rotate(45deg);
+            box-shadow: 4px -4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .timeline-event:nth-child(even) .event-content::after {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            transform: rotate(45deg);
+            box-shadow: -4px 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .timeline-event:nth-child(odd)::after,
+        .timeline-event:nth-child(even)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--secondary-color);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .event-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .event-summary {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .scripture-toggle {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .scripture-toggle:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .scripture-toggle::after {
+            content: '+';
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .scripture-content {
+            margin-top: 1rem;
+            height: 0;
+            overflow: hidden;
+            transition: all var(--transition-speed) ease;
+            opacity: 0;
+        }
+
+        .scripture-reference {
+            font-style: italic;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .scripture-text {
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--light-color);
+        }
+
+        /* Checkbox hack for expanding/collapsing */
+        .scripture-checkbox {
+            display: none;
+        }
+
+        .scripture-checkbox:checked + .scripture-content {
+            height: auto;
+            opacity: 1;
+            padding-top: 1rem;
+            border-top: 1px solid var(--light-color);
+        }
+
+        .scripture-checkbox:checked ~ .scripture-toggle::after {
+            content: '−';
+        }
+
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 20px;
+            }
+            
+            .timeline-event {
+                justify-content: flex-end;
+            }
+            
+            .event-content {
+                width: calc(100% - 40px);
+                margin-left: 40px;
+            }
+            
+            .timeline-event:nth-child(odd) .event-content::after,
+            .timeline-event:nth-child(even) .event-content::after {
+                left: -10px;
+                right: auto;
+                box-shadow: -4px 4px 8px rgba(0, 0, 0, 0.05);
+            }
+            
+            .timeline-event:nth-child(odd)::after,
+            .timeline-event:nth-child(even)::after {
+                left: 20px;
+                transform: none;
+            }
+            
+            .epoch-banner {
+                min-width: 240px;
+                padding: 0.6rem 1.5rem;
+            }
+            
+            .epoch-title {
+                font-size: 1.4rem;
+            }
+            
+            .epoch-section::before {
+                left: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Prophetic Timeline</h1>
+    
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+        
+        <!-- Church Age Epoch -->
+        <div class="epoch-section">
+            <div class="epoch-banner">
+                <h2 class="epoch-title">Church Age → Rapture</h2>
+            </div>
+        </div>
+        
+        <!-- Event 1 -->
+        <div class="timeline-event">
+            <div class="event-content">
+                <h2 class="event-title">The Rapture of the Church</h2>
+                <p class="event-summary">The sudden gathering of believers to meet Christ in the air, marking the beginning of end-time events and the removal of the Church from earth before the Tribulation period.</p>
+                
+                <input type="checkbox" id="scripture-1" class="scripture-checkbox">
+                <div class="scripture-content">
+                    <div class="scripture-reference">1 Thessalonians 4:16-17</div>
+                    <p class="scripture-text">For the Lord himself will descend from heaven with a cry of command, with the voice of an archangel, and with the sound of the trumpet of God. And the dead in Christ will rise first. Then we who are alive, who are left, will be caught up together with them in the clouds to meet the Lord in the air, and so we will always be with the Lord.</p>
+                    
+                    <div class="scripture-reference">1 Corinthians 15:51-52</div>
+                    <p class="scripture-text">Behold! I tell you a mystery. We shall not all sleep, but we shall all be changed, in a moment, in the twinkling of an eye, at the last trumpet. For the trumpet will sound, and the dead will be raised imperishable, and we shall be changed.</p>
+                </div>
+                
+                <label for="scripture-1" class="scripture-toggle">View Scripture References</label>
+            </div>
+        </div>
+        
+        <!-- Tribulation Epoch -->
+        <div class="epoch-section">
+            <div class="epoch-banner">
+                <h2 class="epoch-title">Tribulation Period</h2>
+            </div>
+        </div>
+        
+        <!-- Event 2 -->
+        <div class="timeline-event">
+            <div class="event-content">
+                <h2 class="event-title">The Rise of the Antichrist</h2>
+                <p class="event-summary">The emergence of a charismatic global leader who will deceive many with promises of peace while establishing a one-world government and eventually demanding worship.</p>
+                
+                <input type="checkbox" id="scripture-2" class="scripture-checkbox">
+                <div class="scripture-content">
+                    <div class="scripture-reference">Daniel 9:27</div>
+                    <p class="scripture-text">And he shall make a strong covenant with many for one week, and for half of the week he shall put an end to sacrifice and offering. And on the wing of abominations shall come one who makes desolate, until the decreed end is poured out on the desolator.</p>
+                    
+                    <div class="scripture-reference">2 Thessalonians 2:3-4</div>
+                    <p class="scripture-text">Let no one deceive you in any way. For that day will not come, unless the rebellion comes first, and the man of lawlessness is revealed, the son of destruction, who opposes and exalts himself against every so-called god or object of worship, so that he takes his seat in the temple of God, proclaiming himself to be God.</p>
+                </div>
+                
+                <label for="scripture-2" class="scripture-toggle">View Scripture References</label>
+            </div>
+        </div>
+        
+        <!-- Event 3 -->
+        <div class="timeline-event">
+            <div class="event-content">
+                <h2 class="event-title">The Great Tribulation</h2>
+                <p class="event-summary">An unprecedented period of global suffering and divine judgment lasting seven years, with the latter half being the most severe as God's wrath is poured out upon the earth.</p>
+                
+                <input type="checkbox" id="scripture-3" class="scripture-checkbox">
+                <div class="scripture-content">
+                    <div class="scripture-reference">Matthew 24:21-22</div>
+                    <p class="scripture-text">For then there will be great tribulation, such as has not been from the beginning of the world until now, no, and never will be. And if those days had not been cut short, no human being would be saved. But for the sake of the elect those days will be cut short.</p>
+                    
+                    <div class="scripture-reference">Revelation 7:14</div>
+                    <p class="scripture-text">I said to him, "Sir, you know." And he said to me, "These are the ones coming out of the great tribulation. They have washed their robes and made them white in the blood of the Lamb."</p>
+                </div>
+                
+                <label for="scripture-3" class="scripture-toggle">View Scripture References</label>
+            </div>
+        </div>
+        
+        <!-- Millennial Kingdom Epoch -->
+        <div class="epoch-section">
+            <div class="epoch-banner">
+                <h2 class="epoch-title">Millennial Kingdom</h2>
+            </div>
+        </div>
+        
+        <!-- Event 4 -->
+        <div class="timeline-event">
+            <div class="event-content">
+                <h2 class="event-title">Return of Christ</h2>
+                <p class="event-summary">The physical, visible return of Jesus Christ to earth in power and glory to defeat the Antichrist, establish His earthly kingdom, and rule for one thousand years.</p>
+                
+                <input type="checkbox" id="scripture-4" class="scripture-checkbox">
+                <div class="scripture-content">
+                    <div class="scripture-reference">Revelation 19:11-16</div>
+                    <p class="scripture-text">Then I saw heaven opened, and behold, a white horse! The one sitting on it is called Faithful and True, and in righteousness he judges and makes war. His eyes are like a flame of fire, and on his head are many diadems, and he has a name written that no one knows but himself. He is clothed in a robe dipped in blood, and the name by which he is called is The Word of God.</p>
+                    
+                    <div class="scripture-reference">Zechariah 14:4</div>
+                    <p class="scripture-text">On that day his feet shall stand on the Mount of Olives that lies before Jerusalem on the east, and the Mount of Olives shall be split in two from east to west by a very wide valley, so that one half of the Mount shall move northward, and the other half southward.</p>
+                </div>
+                
+                <label for="scripture-4" class="scripture-toggle">View Scripture References</label>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
