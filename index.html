@@ -7,14 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
         :root {
             --primary-color: #1e3a5f;
             --secondary-color: #a99776;
-            --bg-color: #f7f5f0;
             --text-color: #333;
             --light-color: #e8e2d5;
-            --epoch-color: #f0ebdf;
             --epoch-border: #d5c7a9;
             --timeline-width: 4px;
             --timeline-color: var(--secondary-color);
@@ -29,12 +29,24 @@
 
         body {
             font-family: 'Cormorant Garamond', serif;
-            background-color: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
             padding: 2rem 1rem;
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .background-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background-color: #f7f5f0; /* Default background */
+            transition: background-color 0.5s ease;
         }
 
         h1 {
@@ -44,6 +56,8 @@
             font-size: 2.5rem;
             margin-bottom: 3rem;
             letter-spacing: 0.5px;
+            position: relative;
+            z-index: 2;
         }
 
         .timeline-container {
@@ -61,46 +75,53 @@
             top: 0;
             z-index: 1;
         }
-        
+
         .epoch-section {
             position: relative;
-            margin: 4rem 0;
+            margin: 0 0 4rem 0;
             text-align: center;
+            z-index: 2;
         }
-        
+
         .epoch-banner {
-            background-color: var(--epoch-color);
             border: 1px solid var(--epoch-border);
             border-radius: 40px;
             display: inline-block;
+            background-color: white;
             padding: 0.8rem 2.5rem;
             position: relative;
             z-index: 2;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             min-width: 300px;
         }
-        
+
         .epoch-title {
-            color: var(--primary-color);
             font-size: 1.6rem;
             font-weight: 600;
             letter-spacing: 1px;
             margin: 0;
         }
-        
-        .epoch-section::before {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            background-color: var(--secondary-color);
-            border-radius: 50%;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-            border: 4px solid white;
-            box-shadow: 0 0 0 2px var(--secondary-color);
+
+        /* Remove static background colors from epoch sections */
+        .epoch-rapture,
+        .epoch-preparation,
+        .epoch-tribulation,
+        .epoch-second-coming,
+        .epoch-75-day,
+        .epoch-millennial,
+        .epoch-end-millennium,
+        .epoch-final-judgment {
+            background-color: transparent;
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+
+        .epoch-content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            position: relative;
         }
 
         .timeline-event {
@@ -109,15 +130,15 @@
             width: 100%;
             display: flex;
         }
-        
+
         .timeline-event:nth-child(odd) {
             justify-content: flex-start;
         }
-        
+
         .timeline-event:nth-child(even) {
             justify-content: flex-end;
         }
-        
+
         .event-content {
             width: 45%;
             background-color: white;
@@ -127,7 +148,7 @@
             position: relative;
             transition: all var(--transition-speed) ease;
         }
-        
+
         .timeline-event:nth-child(odd) .event-content::after {
             content: '';
             position: absolute;
@@ -139,7 +160,7 @@
             transform: rotate(45deg);
             box-shadow: 4px -4px 8px rgba(0, 0, 0, 0.05);
         }
-        
+
         .timeline-event:nth-child(even) .event-content::after {
             content: '';
             position: absolute;
@@ -151,7 +172,7 @@
             transform: rotate(45deg);
             box-shadow: -4px 4px 8px rgba(0, 0, 0, 0.05);
         }
-        
+
         .timeline-event:nth-child(odd)::after,
         .timeline-event:nth-child(even)::after {
             content: '';
@@ -159,13 +180,23 @@
             top: 20px;
             width: 16px;
             height: 16px;
-            background-color: var(--secondary-color);
             border-radius: 50%;
             border: 3px solid white;
-            box-shadow: 0 0 0 3px var(--secondary-color);
             left: 50%;
             transform: translateX(-50%);
+            z-index: 3;
+            background-color: currentColor; /* Use the inherited color */
         }
+
+        /* Restore epoch-specific marker colors */
+        .epoch-rapture .timeline-event::after { color: #6b829e; }
+        .epoch-preparation .timeline-event::after { color:#CFC9B5; }
+        .epoch-tribulation .timeline-event::after { color: #9e6b6b; }
+        .epoch-second-coming .timeline-event::after { color: #85703d; }
+        .epoch-75-day .timeline-event::after { color: #9e6b6b; }
+        .epoch-millennial .timeline-event::after { color: var(--millennial-accent); }
+        .epoch-end-millennium .timeline-event::after { color: #8a7a5b; }
+        .epoch-final-judgment .timeline-event::after { color: #4a8b7e; }
 
         .event-title {
             color: var(--primary-color);
@@ -227,7 +258,6 @@
             border-left: 2px solid var(--light-color);
         }
 
-        /* Checkbox hack for expanding/collapsing */
         .scripture-checkbox {
             display: none;
         }
@@ -247,148 +277,722 @@
             .timeline-line {
                 left: 20px;
             }
-            
+
             .timeline-event {
                 justify-content: flex-end;
             }
-            
+
             .event-content {
                 width: calc(100% - 40px);
                 margin-left: 40px;
             }
-            
+
             .timeline-event:nth-child(odd) .event-content::after,
             .timeline-event:nth-child(even) .event-content::after {
                 left: -10px;
                 right: auto;
                 box-shadow: -4px 4px 8px rgba(0, 0, 0, 0.05);
             }
-            
+
             .timeline-event:nth-child(odd)::after,
             .timeline-event:nth-child(even)::after {
                 left: 20px;
                 transform: none;
             }
-            
+
             .epoch-banner {
                 min-width: 240px;
                 padding: 0.6rem 1.5rem;
             }
-            
+
             .epoch-title {
                 font-size: 1.4rem;
-            }
-            
-            .epoch-section::before {
-                left: 20px;
-                top: 50%;
-                transform: translateY(-50%);
             }
         }
     </style>
 </head>
 <body>
-    <h1>Prophetic Timeline</h1>
-    
+    <div class="background-wrapper"></div>
+    <h1>Dr. Hixson's Prophetic Timeline</h1>
+
     <div class="timeline-container">
         <div class="timeline-line"></div>
-        
-        <!-- Church Age Epoch -->
-        <div class="epoch-section">
-            <div class="epoch-banner">
-                <h2 class="epoch-title">Church Age → Rapture</h2>
-            </div>
-        </div>
-        
-        <!-- Event 1 -->
-        <div class="timeline-event">
-            <div class="event-content">
-                <h2 class="event-title">The Rapture of the Church</h2>
-                <p class="event-summary">The sudden gathering of believers to meet Christ in the air, marking the beginning of end-time events and the removal of the Church from earth before the Tribulation period.</p>
-                
-                <input type="checkbox" id="scripture-1" class="scripture-checkbox">
-                <div class="scripture-content">
-                    <div class="scripture-reference">1 Thessalonians 4:16-17</div>
-                    <p class="scripture-text">For the Lord himself will descend from heaven with a cry of command, with the voice of an archangel, and with the sound of the trumpet of God. And the dead in Christ will rise first. Then we who are alive, who are left, will be caught up together with them in the clouds to meet the Lord in the air, and so we will always be with the Lord.</p>
-                    
-                    <div class="scripture-reference">1 Corinthians 15:51-52</div>
-                    <p class="scripture-text">Behold! I tell you a mystery. We shall not all sleep, but we shall all be changed, in a moment, in the twinkling of an eye, at the last trumpet. For the trumpet will sound, and the dead will be raised imperishable, and we shall be changed.</p>
+
+        <!-- Church Age → Rapture Epoch -->
+        <section class="epoch-rapture">
+            <div class="epoch-content-wrapper">
+                <div class="epoch-section">
+                    <div class="epoch-banner">
+                        <h2 class="epoch-title">Church Age → Rapture</h2>
+                    </div>
                 </div>
-                
-                <label for="scripture-1" class="scripture-toggle">View Scripture References</label>
+
+                <!-- Event 1 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">The Rapture of the Church</h2>
+                        <p class="event-summary">Christ removes all believers from the earth in a sudden, supernatural event, meeting them in the air and sparing them from the wrath to come.</p>
+
+                        <input type="checkbox" id="scripture-1" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">1 Thessalonians 4:13–18</div>
+                            <p class="scripture-text">But we do not want you to be uninformed, brothers, about those who are asleep, that you may not grieve as others do who have no hope. For since we believe that Jesus died and rose again, even so, through Jesus, God will bring with him those who have fallen asleep. For this we declare to you by a word from the Lord, that we who are alive, who are left until the coming of the Lord, will not precede those who have fallen asleep. For the Lord himself will descend from heaven with a cry of command, with the voice of an archangel, and with the sound of the trumpet of God. And the dead in Christ will rise first. Then we who are alive, who are left, will be caught up together with them in the clouds to meet the Lord in the air, and so we will always be with the Lord. Therefore encourage one another with these words.</p>
+
+                            <div class="scripture-reference">1 Corinthians 15:51–52</div>
+                            <p class="scripture-text">Behold! I tell you a mystery. We shall not all sleep, but we shall all be changed, in a moment, in the twinkling of an eye, at the last trumpet. For the trumpet will sound, and the dead will be raised imperishable, and we shall be changed.</p>
+
+                            <div class="scripture-reference">John 14:1–3</div>
+                            <p class="scripture-text">Let not your hearts be troubled. Believe in God; believe also in me. In my Father's house are many rooms. If it were not so, would I have told you that I go to prepare a place for you? And if I go and prepare a place for you, I will come again and will take you to myself, that where I am you may be also.</p>
+                        </div>
+
+                        <label for="scripture-1" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
             </div>
-        </div>
-        
+        </section>
+
+        <!-- Preparation Period Epoch -->
+        <section class="epoch-preparation">
+            <div class="epoch-content-wrapper">
+                <div class="epoch-section">
+                    <div class="epoch-banner">
+                        <h2 class="epoch-title">Preparation Period</h2>
+                    </div>
+                </div>
+
+                <!-- Event 2 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">The Judgment Seat of Christ</h2>
+                        <p class="event-summary">In heaven, believers receive rewards for faithful service. This is not a judgment for sin, but for eternal reward.</p>
+
+                        <input type="checkbox" id="scripture-2" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">1 Corinthians 3:10–15</div>
+                            <p class="scripture-text">According to the grace of God given to me, like a skilled master builder I laid a foundation, and someone else is building upon it. Let each one take care how he builds upon it. For no one can lay a foundation other than that which is laid, which is Jesus Christ. Now if anyone builds on the foundation with gold, silver, precious stones, wood, hay, straw—each one's work will become manifest, for the Day will disclose it, because it will be revealed by fire, and the fire will test what sort of work each one has done. If the work that anyone has built on the foundation survives, he will receive a reward. If anyone's work is burned up, he will suffer loss, though he himself will be saved, but only as through fire.</p>
+
+                            <div class="scripture-reference">Romans 14:10</div>
+                            <p class="scripture-text">Why do you pass judgment on your brother? Or you, why do you despise your brother? For we will all stand before the judgment seat of God;</p>
+
+                            <div class="scripture-reference">2 Corinthians 5:10</div>
+                            <p class="scripture-text">For we must all appear before the judgment seat of Christ, so that each one may receive what is due for what he has done in the body, whether good or evil.</p>
+                        </div>
+
+                        <label for="scripture-2" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 3 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">The Marriage of the Lamb</h2>
+                        <p class="event-summary">The Church, the Bride of Christ, is formally joined to Christ in heaven in preparation for the Kingdom.</p>
+
+                        <input type="checkbox" id="scripture-3" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 19:7</div>
+                            <p class="scripture-text">Let us rejoice and exult and give him the glory, for the marriage of the Lamb has come, and his Bride has made herself ready;</p>
+                        </div>
+
+                        <label for="scripture-3" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 4 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Formation of a Western Alliance</h2>
+                        <p class="event-summary">A group of nations—likely led by the Antichrist—emerges and begins asserting military influence.</p>
+
+                        <input type="checkbox" id="scripture-4" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Daniel 11:40–43</div>
+                            <p class="scripture-text">At the time of the end, the king of the south shall attack him, but the king of the north shall rush upon him like a whirlwind, with chariots and horsemen, and with many ships. And he shall come into countries and shall overflow and pass through. He shall come into the glorious land. And tens of thousands shall fall, but these shall be delivered out of his hand: Edom and Moab and the main part of the Ammonites. He shall stretch out his hand against the countries, and the land of Egypt shall not escape. He shall become ruler of the treasures of gold and of silver, and all the precious things of Egypt, and the Libyans and the Cushites shall follow in his train.</p>
+                        </div>
+
+                        <label for="scripture-4" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 5 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Battle of Gog and Magog</h2>
+                        <p class="event-summary">A northern coalition invades Israel, but God supernaturally defeats them, revealing His power.</p>
+
+                        <input type="checkbox" id="scripture-5" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Ezekiel 38–39</div>
+                            <p class="scripture-text">The word of the Lord came to me: “Son of man, set your face toward Gog, of the land of Magog, the chief prince of Meshech and Tubal, and prophesy against him and say, Thus says the Lord God: Behold, I am against you, O Gog, chief prince of Meshech and Tubal. And I will turn you about and put hooks into your jaws, and I will bring you out, and all your army, horses and horsemen, all of them clothed in full armor, a great host, all of them with buckler and shield, wielding swords.” [Summary: God defeats this coalition with fire, hail, and pestilence, showing His glory to the nations.]</p>
+                        </div>
+
+                        <label for="scripture-5" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 6 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">The Antichrist is Unveiled</h2>
+                        <p class="event-summary">A powerful leader gains influence and is revealed as the man of lawlessness.</p>
+
+                        <input type="checkbox" id="scripture-6" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">2 Thessalonians 2:3</div>
+                            <p class="scripture-text">Let no one deceive you in any way. For that day will not come, unless the rebellion comes first, and the man of lawlessness is revealed, the son of destruction,</p>
+                        </div>
+
+                        <label for="scripture-6" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Tribulation Epoch -->
-        <div class="epoch-section">
-            <div class="epoch-banner">
-                <h2 class="epoch-title">Tribulation Period</h2>
-            </div>
-        </div>
-        
-        <!-- Event 2 -->
-        <div class="timeline-event">
-            <div class="event-content">
-                <h2 class="event-title">The Rise of the Antichrist</h2>
-                <p class="event-summary">The emergence of a charismatic global leader who will deceive many with promises of peace while establishing a one-world government and eventually demanding worship.</p>
-                
-                <input type="checkbox" id="scripture-2" class="scripture-checkbox">
-                <div class="scripture-content">
-                    <div class="scripture-reference">Daniel 9:27</div>
-                    <p class="scripture-text">And he shall make a strong covenant with many for one week, and for half of the week he shall put an end to sacrifice and offering. And on the wing of abominations shall come one who makes desolate, until the decreed end is poured out on the desolator.</p>
-                    
-                    <div class="scripture-reference">2 Thessalonians 2:3-4</div>
-                    <p class="scripture-text">Let no one deceive you in any way. For that day will not come, unless the rebellion comes first, and the man of lawlessness is revealed, the son of destruction, who opposes and exalts himself against every so-called god or object of worship, so that he takes his seat in the temple of God, proclaiming himself to be God.</p>
+        <section class="epoch-tribulation">
+            <div class="epoch-content-wrapper">
+                <div class="epoch-section">
+                    <div class="epoch-banner">
+                        <h2 class="epoch-title">Tribulation (7 Years)</h2>
+                    </div>
                 </div>
-                
-                <label for="scripture-2" class="scripture-toggle">View Scripture References</label>
-            </div>
-        </div>
-        
-        <!-- Event 3 -->
-        <div class="timeline-event">
-            <div class="event-content">
-                <h2 class="event-title">The Great Tribulation</h2>
-                <p class="event-summary">An unprecedented period of global suffering and divine judgment lasting seven years, with the latter half being the most severe as God's wrath is poured out upon the earth.</p>
-                
-                <input type="checkbox" id="scripture-3" class="scripture-checkbox">
-                <div class="scripture-content">
-                    <div class="scripture-reference">Matthew 24:21-22</div>
-                    <p class="scripture-text">For then there will be great tribulation, such as has not been from the beginning of the world until now, no, and never will be. And if those days had not been cut short, no human being would be saved. But for the sake of the elect those days will be cut short.</p>
-                    
-                    <div class="scripture-reference">Revelation 7:14</div>
-                    <p class="scripture-text">I said to him, "Sir, you know." And he said to me, "These are the ones coming out of the great tribulation. They have washed their robes and made them white in the blood of the Lamb."</p>
+
+                <!-- Event 7 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Peace Treaty with Israel</h2>
+                        <p class="event-summary">The Antichrist signs a covenant with Israel, officially beginning the seven-year Tribulation.</p>
+
+                        <input type="checkbox" id="scripture-7" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Daniel 9:27</div>
+                            <p class="scripture-text">And he shall make a strong covenant with many for one week, and for half of the week he shall put an end to sacrifice and offering. And on the wing of abominations shall come one who makes desolate, until the decreed end is poured out on the desolator.</p>
+                        </div>
+
+                        <label for="scripture-7" class="scripture-toggle">Scripture References</label>
+                    </div>
                 </div>
-                
-                <label for="scripture-3" class="scripture-toggle">View Scripture References</label>
+
+                <!-- Event 8 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">The Seal Judgments Begin</h2>
+                        <p class="event-summary">Christ opens the first of seven seals, initiating worldwide judgment.</p>
+
+                        <input type="checkbox" id="scripture-8" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 6</div>
+                            <p class="scripture-text">Now I watched when the Lamb opened one of the seven seals, and I heard one of the four living creatures say with a voice like thunder, “Come!” And I looked, and behold, a white horse! And its rider had a bow, and a crown was given to him, and he came out conquering, and to conquer. [Summary: The seals unleash conquest, war, famine, death, martyrdom, and cosmic disturbances.]</p>
+                        </div>
+
+                        <label for="scripture-8" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 9 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">144,000 Witnesses Begin Ministry</h2>
+                        <p class="event-summary">God seals 144,000 Jewish evangelists to preach during the Tribulation.</p>
+
+                        <input type="checkbox" id="scripture-9" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 7; 14</div>
+                            <p class="scripture-text">Then I saw another angel ascending from the rising of the sun, with the seal of the living God, and he called with a loud voice to the four angels who had been given power to harm earth and sea, saying, “Do not harm the earth or the sea or the trees, until we have sealed the servants of our God on their foreheads.” And I heard the number of the sealed, 144,000, sealed from every tribe of the sons of Israel.</p>
+                        </div>
+
+                        <label for="scripture-9" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 10 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Two Special Witnesses Begin Ministry</h2>
+                        <p class="event-summary">Two prophets proclaim truth in Jerusalem with supernatural power.</p>
+
+                        <input type="checkbox" id="scripture-10" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 11</div>
+                            <p class="scripture-text">And I will grant authority to my two witnesses, and they will prophesy for 1,260 days, clothed in sackcloth. These are the two olive trees and the two lampstands that stand before the Lord of the earth. And if anyone would harm them, fire pours from their mouth and consumes their foes.</p>
+                        </div>
+
+                        <label for="scripture-10" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 11 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">The Two Witnesses Are Killed</h2>
+                        <p class="event-summary">The Antichrist murders them; the world rejoices.</p>
+
+                        <input type="checkbox" id="scripture-11" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 11</div>
+                            <p class="scripture-text">And when they have finished their testimony, the beast that rises from the bottomless pit will make war on them and conquer them and kill them, and their dead bodies will lie in the street of the great city that symbolically is called Sodom and Egypt, where their Lord was crucified. For three and a half days some from the peoples and tribes and languages and nations will gaze at their dead bodies and refuse to let them be placed in a tomb, and those who dwell on the earth will rejoice over them and make merry and exchange presents, because these two prophets had been a torment to those who dwell on the earth.</p>
+                        </div>
+
+                        <label for="scripture-11" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 12 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">The Two Witnesses Are Resurrected</h2>
+                        <p class="event-summary">God raises them and takes them to heaven in front of all.</p>
+
+                        <input type="checkbox" id="scripture-12" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 11</div>
+                            <p class="scripture-text">But after the three and a half days a breath of life from God entered them, and they stood up on their feet, and great fear fell on those who saw them. Then they heard a loud voice from heaven saying to them, “Come up here!” And they went up to heaven in a cloud, and their enemies watched them.</p>
+                        </div>
+
+                        <label for="scripture-12" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 13 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Abomination of Desolation</h2>
+                        <p class="event-summary">The Antichrist desecrates the temple and declares himself to be God.</p>
+
+                        <input type="checkbox" id="scripture-13" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Daniel 9:27</div>
+                            <p class="scripture-text">And he shall make a strong covenant with many for one week, and for half of the week he shall put an end to sacrifice and offering. And on the wing of abominations shall come one who makes desolate, until the decreed end is poured out on the desolator.</p>
+
+                            <div class="scripture-reference">Matthew 24:15</div>
+                            <p class="scripture-text">So when you see the abomination of desolation spoken of by the prophet Daniel, standing in the holy place (let the reader understand),</p>
+
+                            <div class="scripture-reference">Revelation 13</div>
+                            <p class="scripture-text">And the beast was given a mouth uttering haughty and blasphemous words, and it was allowed to exercise authority for forty-two months.</p>
+                        </div>
+
+                        <label for="scripture-13" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 14 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Trumpet Judgments Begin</h2>
+                        <p class="event-summary">Cataclysmic events increase with the next set of judgments.</p>
+
+                        <input type="checkbox" id="scripture-14" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 8–9</div>
+                            <p class="scripture-text">When the Lamb opened the seventh seal, there was silence in heaven for about half an hour. Then I saw the seven angels who stand before God, and seven trumpets were given to them. [Summary: The trumpets bring hail, fire, a burning mountain, darkness, locusts, and an army of 200 million, killing a third of mankind.]</p>
+                        </div>
+
+                        <label for="scripture-14" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 15 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Rise of the False Prophet</h2>
+                        <p class="event-summary">A deceptive religious figure assists the Antichrist and performs miracles.</p>
+
+                        <input type="checkbox" id="scripture-15" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 13</div>
+                            <p class="scripture-text">Then I saw another beast rising out of the earth. It had two horns like a lamb and it spoke like a dragon. It exercises all the authority of the first beast in its presence, and makes the earth and its inhabitants worship the first beast, whose mortal wound was healed. It performs great signs, even making fire come down from heaven to earth in front of people,</p>
+                        </div>
+
+                        <label for="scripture-15" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 16 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Commerce Control through the Mark of the Beast</h2>
+                        <p class="event-summary">No one can buy or sell without the mark of the beast.</p>
+
+                        <input type="checkbox" id="scripture-16" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 13</div>
+                            <p class="scripture-text">Also it causes all, both small and great, both rich and poor, both free and slave, to be marked on the right hand or the forehead, so that no one can buy or sell unless he has the mark, that is, the name of the beast or the number of its name. This calls for wisdom: let the one who has understanding calculate the number of the beast, for it is the number of a man, and his number is 666.</p>
+                        </div>
+
+                        <label for="scripture-16" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 17 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Persecution of Believers and Jews</h2>
+                        <p class="event-summary">Those who resist are hunted and martyred.</p>
+
+                        <input type="checkbox" id="scripture-17" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 12–13</div>
+                            <p class="scripture-text">And the dragon stood before the woman who was about to give birth, so that when she bore her child he might devour it. She gave birth to a male child, one who is to rule all the nations with a rod of iron, but her child was caught up to God and to his throne, and the woman fled into the wilderness, where she has a place prepared by God, in which she is to be nourished for 1,260 days.</p>
+                        </div>
+
+                        <label for="scripture-17" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 18 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Fall of Babylon</h2>
+                        <p class="event-summary">The global political, religious, and economic systems collapse under judgment.</p>
+
+                        <input type="checkbox" id="scripture-18" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 18</div>
+                            <p class="scripture-text">After this I saw another angel coming down from heaven, having great authority, and the earth was made bright with his glory. And he called out with a mighty voice, “Fallen, fallen is Babylon the great! She has become a dwelling place for demons, a haunt for every unclean spirit, a haunt for every unclean bird, a haunt for every unclean and detestable beast.”</p>
+                        </div>
+
+                        <label for="scripture-18" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 19 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Bowl Judgments Begin</h2>
+                        <p class="event-summary">The final and most intense series of judgments fall upon the earth.</p>
+
+                        <input type="checkbox" id="scripture-19" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 15–16</div>
+                            <p class="scripture-text">Then I saw another sign in heaven, great and amazing, seven angels with seven plagues, which are the last, for with them the wrath of God is finished. [Summary: The bowls bring sores, poisoned seas, rivers of blood, scorching heat, darkness, and the final gathering for Armageddon.]</p>
+                        </div>
+
+                        <label for="scripture-19" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 20 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Armies from the East Mobilize</h2>
+                        <p class="event-summary">Kings of the East gather for war at Armageddon.</p>
+
+                        <input type="checkbox" id="scripture-20" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 16:12–16</div>
+                            <p class="scripture-text">The sixth angel poured out his bowl on the great river Euphrates, and its water was dried up, to prepare the way for the kings from the east. And I saw, coming out of the mouth of the dragon and out of the mouth of the beast and out of the mouth of the false prophet, three unclean spirits like frogs.</p>
+                        </div>
+
+                        <label for="scripture-20" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 21 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Campaign of Armageddon Begins</h2>
+                        <p class="event-summary">Nations assemble in Megiddo for the final battle.</p>
+
+                        <input type="checkbox" id="scripture-21" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 16:14; 19:17</div>
+                            <p class="scripture-text">For they are demonic spirits, performing signs, who go abroad to the kings of the whole world, to assemble them for battle on the great day of God the Almighty.</p>
+                        </div>
+
+                        <label for="scripture-21" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
             </div>
-        </div>
-        
+        </section>
+
+        <!-- The Second Coming Epoch -->
+        <section class="epoch-second-coming">
+            <div class="epoch-content-wrapper">
+                <div class="epoch-section">
+                    <div class="epoch-banner">
+                        <h2 class="epoch-title">The Second Coming</h2>
+                    </div>
+                </div>
+
+                <!-- Event 22 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Christ Returns in Glory</h2>
+                        <p class="event-summary">Jesus returns with His saints, defeats His enemies, and judges the nations.</p>
+
+                        <input type="checkbox" id="scripture-22" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Zechariah 14:4</div>
+                            <p class="scripture-text">On that day his feet shall stand on the Mount of Olives that lies before Jerusalem on the east, and the Mount of Olives shall be split in two from east to west by a very wide valley, so that one half of the Mount shall move northward, and the other half southward.</p>
+
+                            <div class="scripture-reference">Matthew 25</div>
+                            <p class="scripture-text">When the Son of Man comes in his glory, and all the angels with him, then he will sit on his glorious throne.</p>
+
+                            <div class="scripture-reference">Revelation 19:11–21</div>
+                            <p class="scripture-text">Then I saw heaven opened, and behold, a white horse! The one sitting on it is called Faithful and True, and in righteousness he judges and makes war.</p>
+                        </div>
+
+                        <label for="scripture-22" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 23 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Antichrist and False Prophet Defeated</h2>
+                        <p class="event-summary">Both are thrown into the Lake of Fire.</p>
+
+                        <input type="checkbox" id="scripture-23" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 19:20</div>
+                            <p class="scripture-text">And the beast was captured, and with it the false prophet who in its presence had done the signs by which he deceived those who had received the mark of the beast and those who worshiped its image. These two were thrown alive into the lake of fire that burns with sulfur.</p>
+                        </div>
+
+                        <label for="scripture-23" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 75-Day Preparation Epoch -->
+        <section class="epoch-75-day">
+            <div class="epoch-content-wrapper">
+                <div class="epoch-section">
+                    <div class="epoch-banner">
+                        <h2 class="epoch-title">75-Day Preparation</h2>
+                    </div>
+                </div>
+
+                <!-- Event 24 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Judgment of the Nations</h2>
+                        <p class="event-summary">Survivors are judged and sorted for entry into the Kingdom.</p>
+
+                        <input type="checkbox" id="scripture-24" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Matthew 25:31–46</div>
+                            <p class="scripture-text">When the Son of Man comes in his glory, and all the angels with him, then he will sit on his glorious throne. Before him will be gathered all the nations, and he will separate people one from another as a shepherd separates the sheep from the goats.</p>
+                        </div>
+
+                        <label for="scripture-24" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 25 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Marriage Supper of the Lamb</h2>
+                        <p class="event-summary">A heavenly banquet celebrating Christ and His Church.</p>
+
+                        <input type="checkbox" id="scripture-25" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 19:9</div>
+                            <p class="scripture-text">And the angel said to me, “Write this: Blessed are those who are invited to the marriage supper of the Lamb.” And he said to me, “These are the true words of God.”</p>
+                        </div>
+
+                        <label for="scripture-25" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Millennial Kingdom Epoch -->
-        <div class="epoch-section">
-            <div class="epoch-banner">
-                <h2 class="epoch-title">Millennial Kingdom</h2>
-            </div>
-        </div>
-        
-        <!-- Event 4 -->
-        <div class="timeline-event">
-            <div class="event-content">
-                <h2 class="event-title">Return of Christ</h2>
-                <p class="event-summary">The physical, visible return of Jesus Christ to earth in power and glory to defeat the Antichrist, establish His earthly kingdom, and rule for one thousand years.</p>
-                
-                <input type="checkbox" id="scripture-4" class="scripture-checkbox">
-                <div class="scripture-content">
-                    <div class="scripture-reference">Revelation 19:11-16</div>
-                    <p class="scripture-text">Then I saw heaven opened, and behold, a white horse! The one sitting on it is called Faithful and True, and in righteousness he judges and makes war. His eyes are like a flame of fire, and on his head are many diadems, and he has a name written that no one knows but himself. He is clothed in a robe dipped in blood, and the name by which he is called is The Word of God.</p>
-                    
-                    <div class="scripture-reference">Zechariah 14:4</div>
-                    <p class="scripture-text">On that day his feet shall stand on the Mount of Olives that lies before Jerusalem on the east, and the Mount of Olives shall be split in two from east to west by a very wide valley, so that one half of the Mount shall move northward, and the other half southward.</p>
+        <section class="epoch-millennial">
+            <div class="epoch-content-wrapper">
+                <div class="epoch-section">
+                    <div class="epoch-banner">
+                        <h2 class="epoch-title">Millennial Kingdom</h2>
+                    </div>
                 </div>
-                
-                <label for="scripture-4" class="scripture-toggle">View Scripture References</label>
+
+                <!-- Event 26 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Christ Reigns on Earth</h2>
+                        <p class="event-summary">Jesus rules for 1,000 years with perfect justice.</p>
+
+                        <input type="checkbox" id="scripture-26" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 20:1–6</div>
+                            <p class="scripture-text">Then I saw an angel coming down from heaven, holding in his hand the key to the bottomless pit and a great chain. And he seized the dragon, that ancient serpent, who is the devil and Satan, and bound him for a thousand years,</p>
+                        </div>
+
+                        <label for="scripture-26" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 27 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Satan is Bound</h2>
+                        <p class="event-summary">During the Millennium, Satan is restrained.</p>
+
+                        <input type="checkbox" id="scripture-27" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 20:1–6</div>
+                            <p class="scripture-text">And he seized the dragon, that ancient serpent, who is the devil and Satan, and bound him for a thousand years, and threw him into the pit, and shut it and sealed it over him, so that he might not deceive the nations any longer, until the thousand years were ended.</p>
+                        </div>
+
+                        <label for="scripture-27" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <!-- End of the Millennium Epoch -->
+        <section class="epoch-end-millennium">
+            <div class="epoch-content-wrapper">
+                <div class="epoch-section">
+                    <div class="epoch-banner">
+                        <h2 class="epoch-title">End of the Millennium</h2>
+                    </div>
+                </div>
+
+                <!-- Event 28 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Satan is Loosed Again</h2>
+                        <p class="event-summary">After 1,000 years, Satan deceives the nations one final time.</p>
+
+                        <input type="checkbox" id="scripture-28" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 20:7–10</div>
+                            <p class="scripture-text">And when the thousand years are ended, Satan will be released from his prison and will come out to deceive the nations that are at the four corners of the earth, Gog and Magog, to gather them for battle; their number is like the sand of the sea.</p>
+                        </div>
+
+                        <label for="scripture-28" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 29 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Final Rebellion and Defeat</h2>
+                        <p class="event-summary">God destroys Satan’s final rebellion.</p>
+
+                        <input type="checkbox" id="scripture-29" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 20</div>
+                            <p class="scripture-text">And they marched up over the broad plain of the earth and surrounded the camp of the saints and the beloved city, but fire came down from heaven and consumed them, and the devil who had deceived them was thrown into the lake of fire and sulfur where the beast and the false prophet were, and they will be tormented day and night forever and ever.</p>
+                        </div>
+
+                        <label for="scripture-29" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Judgment & Eternal State Epoch -->
+        <section class="epoch-final-judgment">
+            <div class="epoch-content-wrapper">
+                <div class="epoch-section">
+                    <div class="epoch-banner">
+                        <h2 class="epoch-title">Final Judgment & Eternal State</h2>
+                    </div>
+                </div>
+
+                <!-- Event 30 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Great White Throne Judgment</h2>
+                        <p class="event-summary">Unbelievers are judged and sentenced to the Lake of Fire.</p>
+
+                        <input type="checkbox" id="scripture-30" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 20:11–15</div>
+                            <p class="scripture-text">Then I saw a great white throne and him who was seated on it. From his presence earth and sky fled away, and no place was found for them. And I saw the dead, great and small, standing before the throne, and books were opened. Then another book was opened, which is the book of life. And the dead were judged by what was written in the books, according to what they had done.</p>
+                        </div>
+
+                        <label for="scripture-30" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 31 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Final Destruction of Evil</h2>
+                        <p class="event-summary">Satan and all who follow him are cast away forever.</p>
+
+                        <input type="checkbox" id="scripture-31" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 20:15</div>
+                            <p class="scripture-text">And if anyone's name was not found written in the book of life, he was thrown into the lake of fire.</p>
+                        </div>
+
+                        <label for="scripture-31" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 32 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">Old Creation is Destroyed</h2>
+                        <p class="event-summary">The present heaven and earth pass away.</p>
+
+                        <input type="checkbox" id="scripture-32" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 21:1</div>
+                            <p class="scripture-text">Then I saw a new heaven and a new earth, for the first heaven and the first earth had passed away, and the sea was no more.</p>
+                        </div>
+
+                        <label for="scripture-32" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+
+                <!-- Event 33 -->
+                <div class="timeline-event">
+                    <div class="event-content">
+                        <h2 class="event-title">New Heaven and Earth Created</h2>
+                        <p class="event-summary">God makes all things new—a perfect eternal home.</p>
+
+                        <input type="checkbox" id="scripture-33" class="scripture-checkbox">
+                        <div class="scripture-content">
+                            <div class="scripture-reference">Revelation 21–22</div>
+                            <p class="scripture-text">And I saw the holy city, new Jerusalem, coming down out of heaven from God, prepared as a bride adorned for her husband. And I heard a loud voice from the throne saying, “Behold, the dwelling place of God is with man. He will dwell with them, and they will be his people, and God himself will be with them as their God.”</p>
+                        </div>
+
+                        <label for="scripture-33" class="scripture-toggle">Scripture References</label>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        const epochs = [
+            { class: '.epoch-rapture', color: '#C2DFF0' },
+            { class: '.epoch-preparation', color: '#E8E2D5' },
+            { class: '.epoch-tribulation', color: '#F2B8A0' },
+            { class: '.epoch-second-coming', color: '#FDF4DC' },
+            { class: '.epoch-75-day', color: '#FFF2EC' },
+            { class: '.epoch-millennial', color: '#DAEAF6' },
+            { class: '.epoch-end-millennium', color: '#E1D4C1' },
+            { class: '.epoch-final-judgment', color: '#E6FFF8' }
+        ];
+
+       
+
+        epochs.forEach(epoch => {
+    ScrollTrigger.create({
+        trigger: `${epoch.class} .epoch-content-wrapper`, // Updated trigger
+        start: 'top 50%',
+        end: 'bottom 50%',
+        onEnter: () => gsap.to('.background-wrapper', { backgroundColor: epoch.color, duration: 1, ease: 'power1.inOut' }),
+        onEnterBack: () => gsap.to('.background-wrapper', { backgroundColor: epoch.color, duration: 1, ease: 'power1.inOut' }),
+        onLeave: () => {},
+        onLeaveBack: () => {}
+    });
+});
+
+// Refresh ScrollTrigger when scripture content changes
+document.querySelectorAll('.scripture-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+        ScrollTrigger.refresh(); // Recalculates trigger positions
+    });
+});
+    </script>
 </body>
 </html>
